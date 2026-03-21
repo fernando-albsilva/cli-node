@@ -1,13 +1,14 @@
 import * as readline from "readline";
-import type { IModule } from "./modules/IModule.js";
-import { Module1 } from "./modules/Module1.js";
+import type { IModule, IModuleExecutionContext } from "./modules/IModule.js";
+import { ExecutorModule } from "./modules/ExecutorModule.js";
 import { Module2 } from "./modules/Module2.js";
 import { clearConsole, colorize, ConsoleColor, log } from "./services/console.service.js";
 
-const modules: IModule[] = [new Module1(), new Module2()];
+const modules: IModule[] = [new ExecutorModule(), new Module2()];
 
 function listModules(): void {
-	log(ConsoleColor.Default, "\nOpções:");
+    log(ConsoleColor.Yellow, "========== CLI-NODE ==========");
+	log(ConsoleColor.Default, "\nOpções:\n");
 	modules.forEach((mod, index) => {
 		const optionNumber = colorize(`${index + 1}.`, ConsoleColor.Blue);
 		const moduleName = colorize(mod.name, ConsoleColor.Green);
@@ -28,12 +29,16 @@ function askQuestion(prompt: string): Promise<string> {
     });
 }
 
+const moduleExecutionContext: IModuleExecutionContext = {
+    askQuestion,
+};
+
 async function run(): Promise<void> {
     do  {
         clearConsole();
         listModules();
 
-        const answer = await askQuestion("Escolha a opção: ");
+        const answer = await askQuestion("\nEscolha a opção: ");
         const choice = parseInt(answer, 10);
 
         if (isNaN(choice) || choice < 1 || choice > modules.length) {
@@ -43,12 +48,17 @@ async function run(): Promise<void> {
         }
 
         const selected = modules[choice - 1]!;
-        selected.execute();
+        log(ConsoleColor.Yellow, `\n========= ${selected.name.toUpperCase()} ======`);
+        await selected.execute(moduleExecutionContext);
         await askQuestion("\nPressione Enter para continuar...");
     }  while (true);
 
     rl.close();
 }
 
-
-await run();
+run().catch((error: unknown) => {
+    log(ConsoleColor.Red, "Erro inesperado ao executar o CLI.");
+    log(ConsoleColor.Default, String(error));
+    rl.close();
+    process.exitCode = 1;
+});
