@@ -1,15 +1,8 @@
 import {
-    askForInput,
-    askForOption,
-    clearConsole,
-    colorize,
     ConsoleColor,
     log,
-    logTitle,
 } from "./services/console.service.js";
 import { MainModule } from "./modules/MainModule.js";
-
-// }
 
 async function run(): Promise<void> {
     const mainModule = new MainModule();

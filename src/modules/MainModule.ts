@@ -1,6 +1,5 @@
 import { exit } from "node:process";
 import {
-    askForInput,
     askForOption,
     clearConsole,
     ConsoleColor,
@@ -26,10 +25,10 @@ export class MainModule implements IModule {
     name = "CLI-NODE";
 
     async execute(): Promise<void> {
+        clearConsole();
         let choice: number | null = null;
 
         while (choice !== 0) {
-            console.log("Executando  MainModule:");
             logTitle(this.name);
             logOptions(this.options);
 

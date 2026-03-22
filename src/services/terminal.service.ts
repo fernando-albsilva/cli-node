@@ -1,25 +1,51 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
-import { ConsoleColor, log } from "./console.service.js";
+import { colorize, ConsoleColor, log } from "./console.service.js";
+import { exit } from "node:process";
 
 type ExecutorShell = "powershell" | "cmd" | "bash";
 
-export async function runCommands(commands: string[], shell: ExecutorShell): Promise<void> {
+type RunnerArgs =  {
+    command: string;
+    shell?: ExecutorShell;
+    currentDirectory?: string;
+    stopOnError?: boolean;
+}
+
+export async function runCommands(commands: string[], stopOnError: boolean = true, shell: ExecutorShell = "powershell"): Promise<void> {
     let currentDirectory = process.cwd();
+    let counter = 1;
 
     try {
         for (const command of commands) {
-            log(ConsoleColor.Green, `$ ${command}`);
+            log();
+            let totalExecuted = colorize(`(${counter}/${commands.length})`, ConsoleColor.Blue);
+            log(ConsoleColor.Green, `$ ${command} ${totalExecuted}`);
 
             const changedDirectory = tryChangeDirectory(command, currentDirectory);
 
             if (changedDirectory) {
+                counter++;
                 currentDirectory = changedDirectory;
-                log(ConsoleColor.Default, `Diretório atual: ${currentDirectory}`);
+                log();
+                log(ConsoleColor.Default, `Diretorio atual: ${currentDirectory}`);
+                log();
+                log(ConsoleColor.Yellow, `*********************************************************`);
                 continue;
             }
 
-            runShellCommand(command, shell, currentDirectory);
+            const runnerArgs: RunnerArgs = {
+                command,
+                shell,
+                currentDirectory,
+                stopOnError,
+            };
+
+            runShellCommand(runnerArgs);
+            counter++;
+
+            log();
+            log(ConsoleColor.Yellow, `*********************************************************`);
         }
     } catch (error) {
         log(ConsoleColor.Red, "Erro ao executar sequência de comandos.");
@@ -43,27 +69,30 @@ function tryChangeDirectory(command: string, currentDirectory: string): string |
     return resolve(currentDirectory, rawPath);
 }
 
-function runShellCommand(command: string, shell: ExecutorShell, cwd: string): void {
-    const shellCommand = getShellCommand(shell, command);
+function runShellCommand(runnerArgs: RunnerArgs): void {
+    const shellCommand = getShellCommand(runnerArgs.shell, runnerArgs.command);
     const result = spawnSync(shellCommand.executable, shellCommand.args, {
         encoding: "utf-8",
-        cwd,
+        cwd: runnerArgs.currentDirectory,
         shell: false,
     });
 
     const stdout = result.stdout?.trim();
     const stderr = result.stderr?.trim();
 
+    log();
     if (stdout) {
         log(ConsoleColor.Default, stdout);
     }
 
     if (stderr) {
         log(ConsoleColor.Red, stderr);
+        exit(1);
     }
 
     if (result.error) {
         log(ConsoleColor.Red, String(result.error));
+        exit(1);
     }
 }
 

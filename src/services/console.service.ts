@@ -60,10 +60,6 @@ export async function askForOption(rangeStart: number, rangeEnd: number): Promis
     const isInRange = parsedAnswer >= rangeStart && parsedAnswer <= rangeEnd;
     const isBackExitOption = parsedAnswer === 0;
 
-    // console.log(isValidNumber);
-    // console.log(isInRange);
-    // console.log(isBackExitOption);
-
     if (!isBackExitOption && (!isValidNumber || !isInRange)) {
         log(ConsoleColor.Yellow, "Opção inválida.");
         await askForInput("\nPressione Enter para continuar...");
