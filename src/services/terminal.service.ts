@@ -19,10 +19,12 @@ type RunnerArgs = {
     shell?: ExecutorShell;
     currentDirectory?: string;
     stopOnError?: boolean;
+    acceptedErrors?: string[];
 };
 
 export async function runCommands(
     commands: string[],
+    acceptedErrors: string[] = [],
     stopOnError: boolean = true,
     shell: ExecutorShell = "powershell",
 ): Promise<void> {
@@ -56,6 +58,7 @@ export async function runCommands(
             shell,
             currentDirectory,
             stopOnError,
+            acceptedErrors
         };
 
         runShellCommand(runnerArgs);
@@ -107,12 +110,12 @@ function runShellCommand(runnerArgs: RunnerArgs): void {
 
     if (stderr) {
         log(ConsoleColor.Red, stderr);
-        stopOnError(runnerArgs);
+        stopOnError(runnerArgs, stderr);
     }
 
     if (result.error) {
         log(ConsoleColor.Red, String(result.error));
-        stopOnError(runnerArgs);
+        stopOnError(runnerArgs, String(result.error));
     }
 }
 
@@ -137,9 +140,11 @@ function getShellCommand(shell: ExecutorShell, command: string): { executable: s
     };
 }
 
-function stopOnError(runnerArgs: RunnerArgs) {
-    if (runnerArgs.stopOnError) {
-        exit(1);
+function stopOnError(runnerArgs: RunnerArgs, errorMessage: string) {
+    if (!runnerArgs.stopOnError || runnerArgs.acceptedErrors.includes(errorMessage)) {
+        return;
     }
+
+    exit(1);
 }
 

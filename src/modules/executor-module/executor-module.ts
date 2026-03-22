@@ -1,7 +1,7 @@
 import { askForInput, askForOption, clearConsole, logOptions, logHeader, ConsoleColor, ANSI_COLORS, ANSI_RESET } from "../../services/console.service.js";
 import { runCommands } from "../../services/terminal.service.js";
 import type { IModule, IModuleOption } from "../imodule.js";
-import { UPDATE_REPO_AMBIENTE_DESENVOLVIMENTO_BRANCH_MASTER } from "./commands.config.js";
+import { ACCEPTED_ERROS_GIT, UPDATE_REPO_AMBIENTE_DESENVOLVIMENTO_BRANCH_MASTER } from "./commands.config.js";
 
 
 
@@ -13,12 +13,12 @@ export class ExecutorModule implements IModule {
     {
       id: 1,
       name: `${ANSI_COLORS[ConsoleColor.Yellow]}(Atualizar)${ANSI_RESET} ambiente-desenvolvimento ${ANSI_COLORS[ConsoleColor.Red]}(Master)${ANSI_RESET}`,
-      execute: runCommands.bind(this, UPDATE_REPO_AMBIENTE_DESENVOLVIMENTO_BRANCH_MASTER, false),
+      execute: runCommands.bind(this, UPDATE_REPO_AMBIENTE_DESENVOLVIMENTO_BRANCH_MASTER, ACCEPTED_ERROS_GIT),
     },
     {
       id: 2,
       name: `${ANSI_COLORS[ConsoleColor.Yellow]}(Atualizar)${ANSI_RESET} ambiente-desenvolvimento ${ANSI_COLORS[ConsoleColor.Green]}(Development)${ANSI_RESET}`,
-      execute: runCommands.bind(this, UPDATE_REPO_AMBIENTE_DESENVOLVIMENTO_BRANCH_MASTER, false),
+      execute: runCommands.bind(this, UPDATE_REPO_AMBIENTE_DESENVOLVIMENTO_BRANCH_MASTER, ACCEPTED_ERROS_GIT),
     },
   ];
 
