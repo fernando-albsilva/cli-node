@@ -1,5 +1,5 @@
 import { ConsoleColor, log } from "./services/console.service.js";
-import { MainModule } from "./modules/MainModule.js";
+import { MainModule } from "./modules/main-module/main-module.js";
 
 async function run(): Promise<void> {
     const mainModule = new MainModule();

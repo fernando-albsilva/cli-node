@@ -69,7 +69,7 @@ export async function runCommands(
     }
 
     log();
-    logHeader(`✓ Todos os ${counter - 1} comando(s) foram executados com sucesso!`);
+    logHeader(`✓ Todos os ${counter - 1} comando(s) foram executados!`);
     log();
 }
 
@@ -107,12 +107,12 @@ function runShellCommand(runnerArgs: RunnerArgs): void {
 
     if (stderr) {
         log(ConsoleColor.Red, stderr);
-        exit(1);
+        stopOnError(runnerArgs);
     }
 
     if (result.error) {
         log(ConsoleColor.Red, String(result.error));
-        exit(1);
+        stopOnError(runnerArgs);
     }
 }
 
@@ -136,3 +136,10 @@ function getShellCommand(shell: ExecutorShell, command: string): { executable: s
         args: ["-NoProfile", "-Command", command],
     };
 }
+
+function stopOnError(runnerArgs: RunnerArgs) {
+    if (runnerArgs.stopOnError) {
+        exit(1);
+    }
+}
+

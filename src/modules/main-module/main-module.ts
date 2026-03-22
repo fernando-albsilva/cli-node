@@ -1,7 +1,7 @@
 import { exit } from "node:process";
-import { askForOption, clearConsole, ConsoleColor, log, logOptions, logHeader } from "../services/console.service.js";
-import { ExecutorModule } from "./ExecutorModule.js";
-import { IModule, IModuleOption } from "./IModule.js";
+import { askForOption, clearConsole, ConsoleColor, log, logOptions, logHeader } from "../../services/console.service.js";
+import { ExecutorModule } from "../executor-module/executor-module.js";
+import { IModule, IModuleOption } from "../imodule.js";
 
 const Modules = {
     ExecutorModule: new ExecutorModule(),
@@ -42,7 +42,9 @@ export class MainModule implements IModule {
 
     chekForExitProgram(choice: number | null): void {
         if (choice === 0) {
+            log();
             log(ConsoleColor.Green, "Saindo do programa...");
+            log();
             exit(0);
         }
     }

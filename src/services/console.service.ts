@@ -1,5 +1,5 @@
 import * as readline from "readline";
-import { IModuleOption } from "../modules/IModule.js";
+import { IModuleOption } from "../modules/imodule.js";
 
 export enum ConsoleColor {
     Default = "default",
@@ -9,7 +9,7 @@ export enum ConsoleColor {
     Red = "red",
 }
 
-const ANSI_COLORS: Record<ConsoleColor, string> = {
+export const ANSI_COLORS: Record<ConsoleColor, string> = {
     [ConsoleColor.Default]: "\x1b[0m",
     [ConsoleColor.Green]: "\x1b[32m",
     [ConsoleColor.Blue]: "\x1b[34m",
@@ -17,7 +17,7 @@ const ANSI_COLORS: Record<ConsoleColor, string> = {
     [ConsoleColor.Red]: "\x1b[31m",
 };
 
-const ANSI_RESET = "\x1b[0m";
+export const ANSI_RESET = "\x1b[0m";
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -50,9 +50,9 @@ export function clearConsole(): void {
     console.clear();
 }
 
-export function askForInput(prompt: string): Promise<string> {
+export function askForInput(prompt: string, color: ConsoleColor = ConsoleColor.Yellow): Promise<string> {
     return new Promise((resolve) => {
-        rl.question(prompt, resolve);
+        rl.question(colorize(prompt, color), resolve);
     });
 }
 
@@ -65,7 +65,8 @@ export async function askForOption(rangeStart: number, rangeEnd: number): Promis
     const isBackExitOption = parsedAnswer === 0;
 
     if (!isBackExitOption && (!isValidNumber || !isInRange)) {
-        log(ConsoleColor.Yellow, "Opção inválida.");
+        log();
+        log(ConsoleColor.Red, "Opção inválida.");
         await askForInput("\nPressione Enter para continuar...");
         return null;
     }
@@ -91,12 +92,12 @@ export function logHeader(text: string): void {
 export function logOptions(options: IModuleOption[]): void {
     options.forEach((option) => {
         const optionNumber = colorize(`${option.id}.`, ConsoleColor.Blue);
-        const optionName = colorize(option.name, ConsoleColor.Green);
+        const optionName = colorize(option.name, ConsoleColor.Default);
         log(ConsoleColor.Default, `  ${optionNumber} ${optionName}`);
     });
 
     const optionNumber = colorize(`0.`, ConsoleColor.Blue);
-    const optionName = colorize("Sair/Voltar", ConsoleColor.Green);
+    const optionName = colorize("Sair/Voltar", ConsoleColor.Default);
 
     log(ConsoleColor.Default, `  ${optionNumber} ${optionName}`);
 }
