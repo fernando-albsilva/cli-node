@@ -94,6 +94,7 @@ export function logOptions(options: IModuleOption[]): void {
         const optionNumber = colorize(`${option.id}.`, ConsoleColor.Blue);
         const optionName = colorize(option.name, ConsoleColor.Default);
         log(ConsoleColor.Default, `  ${optionNumber} ${optionName}`);
+        log();
     });
 
     const optionNumber = colorize(`0.`, ConsoleColor.Blue);

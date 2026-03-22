@@ -1,10 +1,19 @@
 import { exit } from "node:process";
-import { askForOption, clearConsole, ConsoleColor, log, logOptions, logHeader } from "../../services/console.service.js";
+import {
+    askForOption,
+    clearConsole,
+    ConsoleColor,
+    log,
+    logOptions,
+    logHeader,
+} from "../../services/console.service.js";
 import { ExecutorModule } from "../executor-module/executor-module.js";
 import { IModule, IModuleOption } from "../imodule.js";
+import { OpenModule } from "../open-module/open-module.js";
 
 const Modules = {
     ExecutorModule: new ExecutorModule(),
+    OpenModule: new OpenModule(),
 };
 
 export class MainModule implements IModule {
@@ -13,6 +22,11 @@ export class MainModule implements IModule {
             id: 1,
             name: "Executar",
             execute: Modules.ExecutorModule.execute.bind(Modules.ExecutorModule),
+        },
+        {
+            id: 2,
+            name: "Abrir",
+            execute: Modules.OpenModule.execute.bind(Modules.OpenModule),
         },
     ];
     name = "CLI-NODE";

@@ -58,7 +58,7 @@ export async function runCommands(
             shell,
             currentDirectory,
             stopOnError,
-            acceptedErrors
+            acceptedErrors,
         };
 
         runShellCommand(runnerArgs);
@@ -147,4 +147,3 @@ function stopOnError(runnerArgs: RunnerArgs, errorMessage: string) {
 
     exit(1);
 }
-
