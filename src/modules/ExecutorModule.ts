@@ -1,89 +1,119 @@
-import { spawnSync } from "node:child_process";
-import { colorize, ConsoleColor, log } from "../services/console.service.js";
-import type { IModule, IModuleExecutionContext, IModuleOption } from "./IModule.js";
+import { askForInput, askForOption, clearConsole, logOptions, logTitle } from "../services/console.service.js";
+import { runCommands } from "../services/terminal.service.js";
+import type { IModule, IModuleOption } from "./IModule.js";
+
+const LOG_TEST_COMMANDS: string[] = [
+    "node -e \"console.log('teste log 1')\"",
+    "node -e \"console.log('teste log 2')\"",
+    "node -e \"console.log('teste log 3')\"",
+    "node -e \"console.log('teste log 4')\"",
+];
+
+const LOG_TEST_2_COMMANDS: string[] = [
+    "node -e \"console.log('teste 2 log 1')\"",
+    "node -e \"console.log('teste 2 log 2')\"",
+    "node -e \"console.log('teste 2 log 3')\"",
+    "node -e \"console.log('teste 2 log 4')\"",
+];
+
+const CREATE_FOLDERS_TEST_COMMANDS: string[] = [
+    "cd C:\\Users\\fernando\\Repositorios\\cli-node\\",
+    "mkdir teste",
+    "cd teste",
+    "mkdir teste-filho",
+    "echo Pastas criadas: teste e teste/teste-filho",
+];
 
 export class ExecutorModule implements IModule {
-  name = "executar";
+    name = "executar";
 
-  private readonly options: IModuleOption[] = [
-    {
-      id: 1,
-      name: "logar-teste",
-      run: () => this.runLogTestCommands("teste log"),
-    },
-    {
-      id: 2,
-      name: "logar-teste-2",
-      run: () => this.runLogTestCommands("teste 2 log"),
-    },
-  ];
-
-  async execute(context?: IModuleExecutionContext): Promise<void> {
-    if (!context) {
-      log(ConsoleColor.Red, "Contexto de execução não informado.");
-      return;
-    }
-
-    log(ConsoleColor.Default, "\nOpções\n");
-    this.options.forEach((option) => {
-      const optionNumber = colorize(`${option.id}.`, ConsoleColor.Blue);
-      const optionName = colorize(option.name, ConsoleColor.Green);
-      log(ConsoleColor.Default, `  ${optionNumber} ${optionName}`);
-    });
-
-    const answer = await context.askQuestion("\nEscolha a opção: ");
-    const choice = parseInt(answer, 10);
-    const selectedOption = this.options.find((option) => option.id === choice);
-
-    if (!selectedOption) {
-      log(ConsoleColor.Yellow, "\nOpção inválida no ExecutorModule.");
-      return;
-    }
-
-    selectedOption.run();
-  }
-
-  private runLogTestCommands(baseText: string): void {
-    const commands: Array<{ command: string; args: string[]; display: string }> = [
-      {
-        command: process.execPath,
-        args: ["-e", `console.log('${baseText} 1')`],
-        display: `node -e \"console.log('${baseText} 1')\"`,
-      },
-      {
-        command: process.execPath,
-        args: ["-e", `console.log('${baseText} 2')`],
-        display: `node -e \"console.log('${baseText} 2')\"`,
-      },
-      {
-        command: process.execPath,
-        args: ["-e", `console.log('${baseText} 3')`],
-        display: `node -e \"console.log('${baseText} 3')\"`,
-      },
-      {
-        command: process.execPath,
-        args: ["-e", `console.log('${baseText} 4')`],
-        display: `node -e \"console.log('${baseText} 4')\"`,
-      },
+    options: IModuleOption[] = [
+        {
+            id: 1,
+            name: "logar-teste",
+            execute: runCommands.bind(this, LOG_TEST_COMMANDS, "powershell"),
+        },
     ];
 
-    for (const item of commands) {
-      log(ConsoleColor.Green, `$ ${item.display}`);
+    // private readonly options: ExecutorOption[] = [
+    //   {
+    //     id: 1,
+    //     name: "logar-teste",
+    //     commands: LOG_TEST_COMMANDS,
+    //   },
+    //   {
+    //     id: 2,
+    //     name: "logar-teste-2",
+    //     commands: LOG_TEST_2_COMMANDS,
+    //   },
+    //   {
+    //     id: 3,
+    //     name: "criar-pastas-teste",
+    //     commands: CREATE_FOLDERS_TEST_COMMANDS,
+    //   },
+    // ];
 
-      const result = spawnSync(item.command, item.args, {
-        encoding: "utf-8",
-      });
+    //async execute(context?: IModuleExecutionContext): Promise<void> {
+    async execute(): Promise<void> {
+        let choice: number | null = null;
 
-      const stdout = result.stdout?.trim();
-      const stderr = result.stderr?.trim();
+        while (choice !== 0) {
+            console.log("Executando  ExecutorModule:");
+            //clearConsole();
+            logTitle(this.name);
+            logOptions(this.options);
 
-      if (stdout) {
-        log(ConsoleColor.Default, stdout);
-      }
+            choice = await askForOption(1, this.options.length);
+            console.log("Executor Choice:", choice);
 
-      if (stderr) {
-        log(ConsoleColor.Red, stderr);
-      }
+            if (choice !== null && choice !== 0) {
+                clearConsole();
+
+                const selected = this.options[choice - 1]!;
+                await selected.execute();
+
+                await askForInput("\nPressione Enter para continuar...");
+            }
+            clearConsole();
+        }
+
+        // const shell = await this.selectShell(context);
+
+        // log(ConsoleColor.Default, "\nOpções\n");
+        // this.options.forEach((option) => {
+        //   const optionNumber = colorize(`${option.id}.`, ConsoleColor.Blue);
+        //   const optionName = colorize(option.name, ConsoleColor.Green);
+        //   log(ConsoleColor.Default, `  ${optionNumber} ${optionName}`);
+        // });
+
+        // const answer = await context.askForInput("\nEscolha a opção: ");
+        // const choice = parseInt(answer, 10);
+        // const selectedOption = this.options.find((option) => option.id === choice);
+
+        // if (!selectedOption) {
+        //   log(ConsoleColor.Yellow, "\nOpção inválida no ExecutorModule.");
+        //   return;
+        // }
+
+        // this.runCommands(selectedOption.commands, shell);
     }
-  }
+
+    //   private async selectShell(context: IModuleExecutionContext): Promise<ExecutorShell> {
+    //     log(ConsoleColor.Default, "\nShell para executar comandos:");
+    //     log(ConsoleColor.Default, `  ${colorize("1.", ConsoleColor.Blue)} ${colorize("powershell (padrão)", ConsoleColor.Green)}`);
+    //     log(ConsoleColor.Default, `  ${colorize("2.", ConsoleColor.Blue)} ${colorize("cmd", ConsoleColor.Green)}`);
+    //     log(ConsoleColor.Default, `  ${colorize("3.", ConsoleColor.Blue)} ${colorize("bash", ConsoleColor.Green)}`);
+
+    //     const answer = (await context.askForInput("Escolha o shell [Enter = powershell]: ")).trim();
+
+    //     if (answer === "2") {
+    //       return "cmd";
+    //     }
+
+    //     if (answer === "3") {
+    //       return "bash";
+    //     }
+
+    //     return "powershell";
+    //   }
 }

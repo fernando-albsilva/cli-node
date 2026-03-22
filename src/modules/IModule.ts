@@ -1,14 +1,16 @@
 export interface IModule {
-  name: string;
-  execute(context?: IModuleExecutionContext): Promise<void>;
+    name: string;
+    //execute(context?: IModuleExecutionContext): Promise<void>;
+    options: IModuleOption[];
+    execute(): Promise<void>;
 }
 
 export interface IModuleOption {
-  id: number;
-  name: string;
-  run: () => void;
+    id: number;
+    name: string;
+    execute(): Promise<void>;
 }
 
-export interface IModuleExecutionContext {
-  askQuestion: (prompt: string) => Promise<string>;
-}
+// export interface IModuleExecutionContext {
+//   askForInput: (prompt: string) => Promise<string>;
+// }
