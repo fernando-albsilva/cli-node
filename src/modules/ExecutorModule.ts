@@ -23,6 +23,14 @@ const CREATE_FOLDERS_TEST_COMMANDS: string[] = [
     "mkdir teste-filho",
 ];
 
+const UPDATE_BRANCH_DEVELOPMENT: string[] = [
+    "git stash push -m \"cli-bot_{clibot-date}\"",
+    "git checkout development",
+    "git show-branch",
+    "git fetch --all",
+    "git pull",
+];
+
 export class ExecutorModule implements IModule {
     name = "executar";
 
@@ -36,6 +44,11 @@ export class ExecutorModule implements IModule {
             id: 2,
             name: "mkdir-teste",
             execute: runCommands.bind(this, CREATE_FOLDERS_TEST_COMMANDS),
+        },
+        {
+            id: 3,
+            name: "update-branch-development",
+            execute: runCommands.bind(this, UPDATE_BRANCH_DEVELOPMENT),
         },
     ];
 

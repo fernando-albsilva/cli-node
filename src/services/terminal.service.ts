@@ -1,9 +1,18 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { colorize, ConsoleColor, log, logHeader } from "./console.service.js";
+import { getClibotDate as getDateTimeNow } from "./date.service.js";
 import { exit } from "node:process";
 
 type ExecutorShell = "powershell" | "cmd" | "bash";
+
+function resolvePlaceholders(command: string): string {
+    if (!command.includes("{clibot-date}")) {
+        return command;
+    }
+
+    return command.replaceAll("{clibot-date}", getDateTimeNow());
+}
 
 type RunnerArgs = {
     command: string;
@@ -24,7 +33,8 @@ export async function runCommands(
     logHeader(`Executando ${commands.length} comando(s)...`);
     log();
 
-    for (const command of commands) {
+    for (const rawCommand of commands) {
+        const command = resolvePlaceholders(rawCommand);
         log();
         let totalExecuted = colorize(`(${counter}/${commands.length})`, ConsoleColor.Blue);
         log(ConsoleColor.Green, `$ ${command} ${totalExecuted}`);
