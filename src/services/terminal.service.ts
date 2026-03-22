@@ -1,56 +1,66 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
-import { colorize, ConsoleColor, log } from "./console.service.js";
+import { colorize, ConsoleColor, log, logHeader } from "./console.service.js";
 import { exit } from "node:process";
 
 type ExecutorShell = "powershell" | "cmd" | "bash";
 
-type RunnerArgs =  {
+type RunnerArgs = {
     command: string;
     shell?: ExecutorShell;
     currentDirectory?: string;
     stopOnError?: boolean;
-}
+};
 
-export async function runCommands(commands: string[], stopOnError: boolean = true, shell: ExecutorShell = "powershell"): Promise<void> {
+export async function runCommands(
+    commands: string[],
+    stopOnError: boolean = true,
+    shell: ExecutorShell = "powershell",
+): Promise<void> {
     let currentDirectory = process.cwd();
     let counter = 1;
 
-    try {
-        for (const command of commands) {
-            log();
-            let totalExecuted = colorize(`(${counter}/${commands.length})`, ConsoleColor.Blue);
-            log(ConsoleColor.Green, `$ ${command} ${totalExecuted}`);
+    log();
+    logHeader(`Executando ${commands.length} comando(s)...`);
+    log();
 
-            const changedDirectory = tryChangeDirectory(command, currentDirectory);
+    for (const command of commands) {
+        log();
+        let totalExecuted = colorize(`(${counter}/${commands.length})`, ConsoleColor.Blue);
+        log(ConsoleColor.Green, `$ ${command} ${totalExecuted}`);
 
-            if (changedDirectory) {
-                counter++;
-                currentDirectory = changedDirectory;
-                log();
-                log(ConsoleColor.Default, `Diretorio atual: ${currentDirectory}`);
-                log();
-                log(ConsoleColor.Yellow, `*********************************************************`);
-                continue;
-            }
+        const changedDirectory = tryChangeDirectory(command, currentDirectory);
 
-            const runnerArgs: RunnerArgs = {
-                command,
-                shell,
-                currentDirectory,
-                stopOnError,
-            };
-
-            runShellCommand(runnerArgs);
+        if (changedDirectory) {
             counter++;
-
+            currentDirectory = changedDirectory;
+            log();
+            log(ConsoleColor.Default, `Diretorio atual: ${currentDirectory}`);
             log();
             log(ConsoleColor.Yellow, `*********************************************************`);
+            continue;
         }
-    } catch (error) {
-        log(ConsoleColor.Red, "Erro ao executar sequência de comandos.");
-        log(ConsoleColor.Default, String(error));
+
+        const runnerArgs: RunnerArgs = {
+            command,
+            shell,
+            currentDirectory,
+            stopOnError,
+        };
+
+        runShellCommand(runnerArgs);
+        counter++;
+
+        log();
+
+        if (counter - 1 < commands.length) {
+            log(ConsoleColor.Yellow, `*********************************************************`);
+        }
     }
+
+    log();
+    logHeader(`✓ Todos os ${counter - 1} comando(s) foram executados com sucesso!`);
+    log();
 }
 
 function tryChangeDirectory(command: string, currentDirectory: string): string | null {

@@ -1,7 +1,4 @@
-import {
-    ConsoleColor,
-    log,
-} from "./services/console.service.js";
+import { ConsoleColor, log } from "./services/console.service.js";
 import { MainModule } from "./modules/MainModule.js";
 
 async function run(): Promise<void> {

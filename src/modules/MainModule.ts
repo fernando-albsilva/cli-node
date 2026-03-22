@@ -1,12 +1,5 @@
 import { exit } from "node:process";
-import {
-    askForOption,
-    clearConsole,
-    ConsoleColor,
-    log,
-    logOptions,
-    logTitle,
-} from "../services/console.service.js";
+import { askForOption, clearConsole, ConsoleColor, log, logOptions, logHeader } from "../services/console.service.js";
 import { ExecutorModule } from "./ExecutorModule.js";
 import { IModule, IModuleOption } from "./IModule.js";
 
@@ -29,7 +22,7 @@ export class MainModule implements IModule {
         let choice: number | null = null;
 
         while (choice !== 0) {
-            logTitle(this.name);
+            logHeader(this.name);
             logOptions(this.options);
 
             choice = await askForOption(1, this.options.length);

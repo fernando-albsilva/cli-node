@@ -43,6 +43,10 @@ export function log(color: ConsoleColor = ConsoleColor.Default, ...messages: unk
 }
 
 export function clearConsole(): void {
+    var lines = process.stdout.getWindowSize()[1];
+    for (var i = 0; i < lines; i++) {
+        console.log("\r\n");
+    }
     console.clear();
 }
 
@@ -69,8 +73,19 @@ export async function askForOption(rangeStart: number, rangeEnd: number): Promis
     return parsedAnswer;
 }
 
-export function logTitle(title: string): void {
-    log(ConsoleColor.Yellow, `\n========= ${title.toUpperCase()} ======`);
+export function logHeader(text: string): void {
+    let bar = "";
+    let barLength = text.length + 12;
+    text = `      ${text}      `;
+
+    for (let i = 0; i < barLength; i++) {
+        bar += "═";
+    }
+
+    log(ConsoleColor.Yellow, bar);
+    log(ConsoleColor.Yellow, text);
+    log(ConsoleColor.Yellow, bar);
+    log();
 }
 
 export function logOptions(options: IModuleOption[]): void {

@@ -1,4 +1,4 @@
-import { askForInput, askForOption, clearConsole, logOptions, logTitle } from "../services/console.service.js";
+import { askForInput, askForOption, clearConsole, logOptions, logHeader } from "../services/console.service.js";
 import { runCommands } from "../services/terminal.service.js";
 import type { IModule, IModuleOption } from "./IModule.js";
 
@@ -20,7 +20,7 @@ const CREATE_FOLDERS_TEST_COMMANDS: string[] = [
     "cd C:\\Users\\fernando\\Repositorios\\cli-node\\",
     "mkdir teste",
     "cd teste",
-    "mkdir teste-filho"
+    "mkdir teste-filho",
 ];
 
 export class ExecutorModule implements IModule {
@@ -39,13 +39,12 @@ export class ExecutorModule implements IModule {
         },
     ];
 
- 
     async execute(): Promise<void> {
         let choice: number | null = null;
 
         while (choice !== 0) {
             clearConsole();
-            logTitle(this.name);
+            logHeader(this.name);
             logOptions(this.options);
 
             choice = await askForOption(1, this.options.length);
